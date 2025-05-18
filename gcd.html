@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GCD Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            font-size: 2.2rem;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.2em;
+            padding-right: 2.5rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            margin-top: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #result {
+            margin-top: 1.5rem;
+            padding: 1.2rem;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1f2937;
+            border-radius: 16px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .performance-comparison {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            color: #1f2937;
+            font-size: 0.9rem;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .performance-comparison table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+
+        .performance-comparison th, 
+        .performance-comparison td {
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .performance-comparison th {
+            font-weight: 600;
+            color: #4b5563;
+        }
+
+        .fastest {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .slowest {
+            color: #dc2626;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        ::placeholder {
+            color: #9ca3af;
+        }
+
+        .algorithm-info {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            color: #1f2937;
+            font-size: 0.9rem;
+            text-align: left;
+            display: none;
+        }
+
+        .algorithm-info.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .algorithm-info h3 {
+            margin: 0 0 0.5rem 0;
+            color: #4b5563;
+        }
+
+        .algorithm-info p {
+            margin: 0;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GCD Calculator</h1>
+        <div class="input-group">
+            <input type="number" id="num1" placeholder="Enter first number" min="1" required>
+        </div>
+        <div class="input-group">
+            <input type="number" id="num2" placeholder="Enter second number" min="1" required>
+        </div>
+        <div class="input-group">
+            <select id="method" onchange="showAlgorithmInfo()">
+                <option value="euclid">Euclid's Algorithm (Most Efficient)</option>
+                <option value="consecutive">Consecutive Integer Checking (Simple)</option>
+                <option value="middle">Middle School Procedure (Educational)</option>
+            </select>
+        </div>
+        <div id="algorithmInfo" class="algorithm-info">
+            <h3>Algorithm Description</h3>
+            <p id="algorithmDescription"></p>
+        </div>
+        <button onclick="calculateGCD()">Calculate GCD</button>
+        <div id="result"></div>
+        <div id="performanceComparison" class="performance-comparison"></div>
+    </div>
+
+    <script>
+        // Store performance measurements
+        let performanceHistory = {};
+
+        function calculateGCD() {
+            let a = parseInt(document.getElementById('num1').value);
+            let b = parseInt(document.getElementById('num2').value);
+            let method = document.getElementById('method').value;
+            let output;
+
+            if (isNaN(a) || isNaN(b) || a <= 0 || b <= 0) {
+                output = "Please enter valid positive integers.";
+            } else {
+                // Run the algorithm multiple times for more accurate measurement
+                const iterations = 1000;
+                const startTime = performance.now();
+                
+                // Run multiple iterations to get more accurate timing
+                for (let i = 0; i < iterations; i++) {
+                    if (method === "euclid") {
+                        output = gcdEuclid(a, b);
+                    } else if (method === "consecutive") {
+                        output = gcdConsecutive(a, b);
+                    } else {
+                        output = gcdMiddleSchool(a, b);
+                    }
+                }
+                
+                const endTime = performance.now();
+                const totalExecutionTime = endTime - startTime;
+                // Calculate average time per iteration in microseconds
+                const executionTime = (totalExecutionTime / iterations) * 1000;
+
+                // Store performance data
+                performanceHistory[method] = {
+                    time: executionTime,
+                    result: output,
+                    numbers: [a, b]
+                };
+
+                output = `GCD: ${output}`;
+                showPerformanceComparison();
+            }
+
+            const resultBox = document.getElementById('result');
+            resultBox.innerText = output;
+            resultBox.style.display = 'block';
+        }
+
+        function showPerformanceComparison() {
+            const comparisonDiv = document.getElementById('performanceComparison');
+            if (Object.keys(performanceHistory).length === 0) return;
+
+            let html = '<h3>Performance Comparison</h3>';
+            html += '<table>';
+            html += '<tr><th>Algorithm</th><th>Time (μs)</th><th>Numbers</th><th>Result</th></tr>';
+
+            // Sort algorithms by execution time
+            const sortedAlgorithms = Object.entries(performanceHistory)
+                .sort((a, b) => a[1].time - b[1].time);
+
+            const algorithmNames = {
+                euclid: "Euclid's Algorithm",
+                consecutive: "Consecutive Integer",
+                middle: "Middle School"
+            };
+
+            sortedAlgorithms.forEach(([algorithm, data], index) => {
+                const className = index === 0 ? 'fastest' : 
+                                index === sortedAlgorithms.length - 1 ? 'slowest' : '';
+                
+                // Format the time based on its magnitude
+                let timeDisplay;
+                if (data.time < 1) {
+                    timeDisplay = data.time.toFixed(4);
+                } else if (data.time < 10) {
+                    timeDisplay = data.time.toFixed(3);
+                } else {
+                    timeDisplay = data.time.toFixed(1);
+                }
+
+                html += `
+                    <tr class="${className}">
+                        <td>${algorithmNames[algorithm]}</td>
+                        <td>${timeDisplay}</td>
+                        <td>${data.numbers.join(', ')}</td>
+                        <td>${data.result}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</table>';
+
+            // Add comparison analysis
+            if (sortedAlgorithms.length > 1) {
+                const fastest = sortedAlgorithms[0];
+                const slowest = sortedAlgorithms[sortedAlgorithms.length - 1];
+                const speedDiff = slowest[1].time / fastest[1].time;
+                
+                let comparisonText;
+                if (speedDiff > 1000) {
+                    comparisonText = `${(speedDiff/1000).toFixed(1)}k times`;
+                } else {
+                    comparisonText = `${speedDiff.toFixed(1)}x`;
+                }
+                
+                html += `
+                    <p style="margin-top: 1rem">
+                        ${algorithmNames[fastest[0]]} was ${comparisonText} faster than 
+                        ${algorithmNames[slowest[0]]} for these numbers.
+                    </p>
+                `;
+            }
+
+            // Add explanation about the measurements
+            html += `
+                <p style="margin-top: 0.5rem; font-size: 0.8rem; color: #666;">
+                    * Times shown are averages over 1000 iterations to ensure accuracy.
+                    μs = microseconds (1 millionth of a second)
+                </p>
+            `;
+
+            comparisonDiv.innerHTML = html;
+            comparisonDiv.style.display = 'block';
+        }
+
+        function gcdEuclid(a, b) {
+            while (b !== 0) {
+                let r = a % b;
+                a = b;
+                b = r;
+            }
+            return a;
+        }
+
+        function gcdConsecutive(a, b) {
+            let min = Math.min(a, b);
+            while (min > 0) {
+                if (a % min === 0 && b % min === 0) return min;
+                min--;
+            }
+        }
+
+        function primeFactors(n) {
+            let factors = [];
+            for (let i = 2; i <= n; i++) {
+                while (n % i === 0) {
+                    factors.push(i);
+                    n /= i;
+                }
+            }
+            return factors;
+        }
+
+        function gcdMiddleSchool(a, b) {
+            let aFactors = primeFactors(a);
+            let bFactors = primeFactors(b);
+            let common = [];
+            for (let i = 0; i < aFactors.length; i++) {
+                let index = bFactors.indexOf(aFactors[i]);
+                if (index !== -1) {
+                    common.push(aFactors[i]);
+                    bFactors.splice(index, 1);
+                }
+            }
+            return common.reduce((acc, val) => acc * val, 1) || 1;
+        }
+
+        function showAlgorithmInfo() {
+            const method = document.getElementById('method').value;
+            const description = document.getElementById('algorithmDescription');
+            const infoBox = document.getElementById('algorithmInfo');
+            
+            const descriptions = {
+                euclid: "Most efficient method that uses division and remainder. Repeatedly divides the larger number by the smaller one until remainder is zero. Time complexity: O(log min(a,b)).",
+                consecutive: "Simple but less efficient method that checks each number from the minimum of the two numbers down to 1, finding the largest common divisor. Time complexity: O(min(a,b)).",
+                middle: "Educational method that finds prime factors of both numbers and multiplies their common factors. Similar to how it's taught in schools. Time complexity: O(√max(a,b))."
+            };
+
+            description.textContent = descriptions[method];
+            infoBox.classList.add('active');
+        }
+
+        // Show initial algorithm info
+        showAlgorithmInfo();
+    </script>
+</body>
+</html>
